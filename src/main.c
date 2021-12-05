@@ -4,13 +4,7 @@
 #include <unistd.h>     
 #include <string.h>
 #include <stdbool.h>
-
-
-struct Pos {
-	unsigned int curRow;
-	unsigned int curCol;
-	unsigned int lastRow;
-};
+#include "../include/WriteBuffer.h"
 
 
 void write_from_file(WINDOW* restrict win, const char* restrict filename) {
@@ -64,9 +58,22 @@ int main(int argc, const char* restrict argv[]) {
 	bool quit = false;
 	char curChar;
 
+	// Positions.
 	unsigned int curCol = 5;
 	unsigned int curRow = 1;
 	unsigned int lastRow = 0;
+
+	// Write buffer.
+	struct WriteBuffer writeBuf;
+	wb_init(&writeBuf);
+
+	/*
+	* File buffer is used for storing
+	* the stores in memory, the contents 
+	* of what the person has been writing until
+	* they are ready to write the changes
+	* to the file they are writing to.
+	*/
 
 	while (!(quit)) {
 		if (curRow == lastRow + 1) {
@@ -85,6 +92,8 @@ int main(int argc, const char* restrict argv[]) {
 				} else {
 					continue;
 				}
+			case 2970:   // End key.
+				break;
 		}
 
 		switch (curChar) {
@@ -100,4 +109,6 @@ int main(int argc, const char* restrict argv[]) {
 
 	endwin();
 	delwin(win);
+	free(writeBuf.lines);
+	writeBuf.lines = NULL;
 }
