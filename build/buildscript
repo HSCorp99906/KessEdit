@@ -1,1 +1,9 @@
 #!/bin/bash
+# Kess Build Script - Made by Kizana
+# Github: https://github.com/K1ZANA/
+
+echo -e "\e[37m			┌────────────────────────┐\e[0m"
+echo -e "\e[37m			│\e[36mWBuilding...\e[37m│\e[0m"
+echo -e "\e[37m			└────────────────────────┘\e[0m"
+echo "Kess is being builded..." >> .kessbuildlog
+exec gcc ../src/*.c -l ncurses -o ../bin/main && echo "Done!"
