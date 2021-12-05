@@ -3,19 +3,21 @@
 
 #include <stdlib.h>
 
+struct WbCell {
+	unsigned long pos;
+	size_t strsize;
+	char* line;
+};
+
 
 struct WriteBuffer {
 	size_t size;
-	char** lines;
-	unsigned long stringpos;  // Pos for string.
-	unsigned long charpos;  // Pos for char of each string.
+	struct WbCell* cells;
 };
 
 
 void wb_init(struct WriteBuffer* wb);
-void wb_pushc(struct WriteBuffer* wb, char c);
-void wb_pushl(struct WriteBuffer* wb, const char* restrict line);
-void wb_popc(struct WriteBuffer* wb);
-
+void wb_destroy(struct WriteBuffer* wb);
+void wb_pushc(struct WriteBuffer* wb, unsigned long cellidx, char c);
 
 #endif

@@ -60,12 +60,9 @@ int main(int argc, const char* restrict argv[]) {
 
 	// Positions.
 	unsigned int curCol = 5;
+	unsigned int lastCol = 4;
 	unsigned int curRow = 1;
 	unsigned int lastRow = 0;
-
-	// Write buffer.
-	struct WriteBuffer writeBuf;
-	wb_init(&writeBuf);
 
 	/*
 	* File buffer is used for storing
@@ -87,11 +84,24 @@ int main(int argc, const char* restrict argv[]) {
 			case 127:
 				if (curCol > 5) {
 					--curCol;
-					mvwprintw(win, curRow, curCol, "     ");
+					mvwprintw(win, curRow, curCol, " ");
 					continue;
 				} else {
+					if (curRow > 1) {
+						mvwprintw(win, curRow, 0, "          ");
+						mvwprintw(win, curRow, 0, "   ");
+						curCol = lastCol;
+						--lastRow;
+						--curRow;
+					}
+
 					continue;
 				}
+			case 10:
+				lastCol = curCol;  // Sets last column.
+				curCol = 5;
+				++curRow;
+				continue;
 			case 2970:   // End key.
 				break;
 		}
@@ -107,8 +117,9 @@ int main(int argc, const char* restrict argv[]) {
 		}
 	}
 
+	FILE* writefile = fopen(argv[1], "a");
+	fclose(writefile);
+
 	endwin();
 	delwin(win);
-	free(writeBuf.lines);
-	writeBuf.lines = NULL;
 }
