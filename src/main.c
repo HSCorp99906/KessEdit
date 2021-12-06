@@ -64,8 +64,11 @@ int main(int argc, const char* restrict argv[]) {
 	unsigned int curRow = 1;
 	unsigned int lastRow = 0;
 
+	struct WriteBuffer writeBuf;
+	wb_init(&writeBuf);
+
 	/*
-	* File buffer is used for storing
+	* Write buffer is used for storing
 	* the stores in memory, the contents 
 	* of what the person has been writing until
 	* they are ready to write the changes
@@ -98,12 +101,12 @@ int main(int argc, const char* restrict argv[]) {
 					continue;
 				}
 			case 10:
+				wb_create_newline(&writeBuf);  // Adds a new cell to our buffer.
+				wb_pushc(&writeBuf, curRow - 1, '\n');  // Adds a new line char to the previous cell.
 				lastCol = curCol;  // Sets last column.
 				curCol = 5;
 				++curRow;
 				continue;
-			case 2970:   // End key.
-				break;
 		}
 
 		switch (curChar) {
@@ -111,6 +114,7 @@ int main(int argc, const char* restrict argv[]) {
 				quit = true;
 				break;	
 			default:
+				wb_pushc(&writeBuf, curRow - 1, curChar);
 				mvwprintw(win, curRow, curCol, &curChar);
 				++curCol;
 				break;
@@ -118,8 +122,14 @@ int main(int argc, const char* restrict argv[]) {
 	}
 
 	FILE* writefile = fopen(argv[1], "a");
+
+	for (int i = 0; i < writeBuf.size; ++i) {
+		fputs(wb_fetchline(writeBuf, i), writefile);
+	}
+
 	fclose(writefile);
 
 	endwin();
+	wb_destroy(&writeBuf);
 	delwin(win);
 }
