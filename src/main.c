@@ -16,13 +16,22 @@ void write_from_file(WINDOW* restrict win, const char* restrict filename) {
 
 	while (getline(&lineBuf, &lineBufSize, fp) != -1) {
 		++filesize;
-		wprintw(win, "~%d  %s", filesize, lineBuf);
+		mvwprintw(win, filesize, 0, "~%d  %s", filesize, lineBuf);
 	}
-
-	wscrl(win, filesize - 20);
+	
+	if (filesize > 50) {
+		wscrl(win, filesize - 20);
+	}
 
 	free(lineBuf);
 	fclose(fp);
+}
+
+
+void set_cursor(WINDOW* restrict win, unsigned long curRow, unsigned long curCol) {
+	wattron(win, A_STANDOUT);
+	mvwprintw(win, curRow, curCol + 1, " ");
+	wattroff(win, A_STANDOUT);
 }
 
 
@@ -61,8 +70,8 @@ int main(int argc, const char* restrict argv[]) {
 	// Positions.
 	unsigned int curCol = 5;
 	unsigned int lastCol = 4;
-	unsigned int curRow = 1;
-	unsigned int lastRow = 0;
+	unsigned long curRow = 1;
+	unsigned long lastRow = 0;
 
 	struct WriteBuffer writeBuf;
 	wb_init(&writeBuf);
@@ -74,8 +83,16 @@ int main(int argc, const char* restrict argv[]) {
 	* they are ready to write the changes
 	* to the file they are writing to.
 	*/
+	
+	// For our fake cursor.
+	bool highlight = true;
 
 	while (!(quit)) {
+		if (highlight) {
+			highlight = false;
+			set_cursor(win, curRow, curCol - 1);
+		}
+
 		if (curRow == lastRow + 1) {
 			mvwprintw(win, curRow, curCol - 4, "~%d ", curRow);
 			++lastRow;
@@ -86,8 +103,10 @@ int main(int argc, const char* restrict argv[]) {
 		switch ((int)curChar) {
 			case 127:
 				if (curCol > 5) {
+					mvwprintw(win, curRow, curCol, "    ");
 					--curCol;
 					mvwprintw(win, curRow, curCol, " ");
+					set_cursor(win, curRow, curCol);
 					continue;
 				} else {
 					if (curRow > 1) {
@@ -114,9 +133,11 @@ int main(int argc, const char* restrict argv[]) {
 				quit = true;
 				break;	
 			default:
+				mvwprintw(win, curRow, curCol, "      ");
 				wb_pushc(&writeBuf, curRow - 1, curChar);
 				mvwprintw(win, curRow, curCol, &curChar);
 				++curCol;
+				set_cursor(win, curRow, curCol - 1);
 				break;
 		}
 	}
