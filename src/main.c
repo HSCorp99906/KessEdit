@@ -120,7 +120,7 @@ int main(int argc, const char* restrict argv[]) {
 					continue;
 				}
 			case 10:
-				mvwprintw(win, curRow, curCol, "      ");  // Fixes stuck curses bug.
+				mvwprintw(win, curRow, curCol, "      ");  // Fixes stuck cursor bug.
 				highlight = true;
 
 				wb_create_newline(&writeBuf);  // Adds a new cell to our buffer.
