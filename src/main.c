@@ -120,6 +120,9 @@ int main(int argc, const char* restrict argv[]) {
 					continue;
 				}
 			case 10:
+				mvwprintw(win, curRow, curCol, "      ");  // Fixes stuck curses bug.
+				highlight = true;
+
 				wb_create_newline(&writeBuf);  // Adds a new cell to our buffer.
 				wb_pushc(&writeBuf, curRow - 1, '\n');  // Adds a new line char to the previous cell.
 				lastCol = curCol;  // Sets last column.
